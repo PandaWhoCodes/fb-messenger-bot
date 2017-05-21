@@ -4,7 +4,7 @@ import json
 
 import requests
 from flask import Flask, request
-
+#creating the flask app
 app = Flask(__name__)
 
 
@@ -13,6 +13,8 @@ def verify():
     # when the endpoint is registered as a webhook, it must echo back
     # the 'hub.challenge' value it receives in the query arguments
     if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
+        #If you dont want to set tthe verify token and page access token from the OS environment
+        #you can simply input it here
         if not request.args.get("hub.verify_token") == os.environ["VERIFY_TOKEN"]:
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
@@ -39,7 +41,7 @@ def webhook():
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
 
-                    send_message(sender_id, "roger that!")
+                    send_message(sender_id, message_text)
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
@@ -52,7 +54,7 @@ def webhook():
 
     return "ok", 200
 
-
+#function that sends the message
 def send_message(recipient_id, message_text):
 
     log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))
@@ -76,7 +78,7 @@ def send_message(recipient_id, message_text):
         log(r.status_code)
         log(r.text)
 
-
+#function to log all messages
 def log(message):  # simple wrapper for logging to stdout on heroku
     print str(message)
     sys.stdout.flush()
